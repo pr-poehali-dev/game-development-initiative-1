@@ -347,14 +347,19 @@ export default function Index() {
           <div className="grid md:grid-cols-3 gap-6">
             <Card className="md:col-span-2 p-6 bg-card border-4 border-primary">
               <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="text-5xl">{currentRoom.emoji}</div>
-                  <div className="flex-1">
-                    <h2 className="font-pixel text-lg text-primary">{currentRoom.name}</h2>
-                    <p className="font-pixel text-xs text-muted-foreground mt-2 leading-relaxed">
-                      {currentRoom.description}
-                    </p>
+                <div className="relative bg-muted/20 border-2 border-muted p-8 mb-4 min-h-32">
+                  <div className="text-center">
+                    <div className="text-6xl mb-2 animate-float">{currentRoom.emoji}</div>
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-4xl animate-walk">
+                      🧙‍♂️
+                    </div>
                   </div>
+                </div>
+                <div>
+                  <h2 className="font-pixel text-lg text-primary">{currentRoom.name}</h2>
+                  <p className="font-pixel text-xs text-muted-foreground mt-2 leading-relaxed">
+                    {currentRoom.description}
+                  </p>
                 </div>
 
                 {currentRoom.id !== 'treasure' && !currentRoom.solved && (
@@ -450,13 +455,13 @@ export default function Index() {
             <div className="space-y-4">
               <Card className="p-4 bg-card border-4 border-secondary">
                 <h3 className="font-pixel text-xs text-secondary mb-3">КАРТА ЗАМКА</h3>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 relative">
                   {rooms.map(room => (
                     <button
                       key={room.id}
                       onClick={() => moveToRoom(room.id)}
                       disabled={!visitedRooms.includes(room.id) && !currentRoom.connections.includes(room.id)}
-                      className={`p-3 border-2 font-pixel text-xs transition-all ${
+                      className={`p-3 border-2 font-pixel text-xs transition-all relative ${
                         room.id === currentRoomId 
                           ? 'border-primary bg-primary/20 scale-105' 
                           : visitedRooms.includes(room.id)
@@ -467,6 +472,11 @@ export default function Index() {
                       <div className="text-2xl mb-1">{room.emoji}</div>
                       <div className="text-[8px] leading-tight">{room.name}</div>
                       {room.solved && <div className="text-secondary text-xs mt-1">✓</div>}
+                      {room.id === currentRoomId && (
+                        <div className="absolute -top-2 -right-2 text-2xl animate-walk">
+                          🧙‍♂️
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>

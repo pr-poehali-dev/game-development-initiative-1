@@ -102,6 +102,14 @@ export default {
 					'40%': { transform: 'translate(-2px, -2px)' },
 					'60%': { transform: 'translate(2px, 2px)' },
 					'80%': { transform: 'translate(2px, -2px)' }
+				},
+				'walk': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-4px)' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px) rotate(-2deg)' },
+					'50%': { transform: 'translateY(-8px) rotate(2deg)' }
 				}
 			},
 			animation: {
@@ -109,7 +117,9 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pixelate': 'pixelate 0.3s ease-out',
 				'blink': 'blink 1.5s ease-in-out infinite',
-				'glitch': 'glitch 0.3s ease-in-out'
+				'glitch': 'glitch 0.3s ease-in-out',
+				'walk': 'walk 0.6s ease-in-out infinite',
+				'float': 'float 2s ease-in-out infinite'
 			}
 		}
 	},
