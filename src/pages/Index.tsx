@@ -5,6 +5,16 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 
+interface Room {
+  id: string;
+  name: string;
+  description: string;
+  riddle: Riddle;
+  connections: string[];
+  emoji: string;
+  solved: boolean;
+}
+
 interface Riddle {
   id: number;
   question: string;
@@ -24,28 +34,28 @@ interface Achievement {
 interface LeaderboardEntry {
   name: string;
   score: number;
-  level: number;
+  rooms: number;
 }
 
 const riddles: Riddle[] = [
   {
     id: 1,
-    question: "Что можно увидеть с закрытыми глазами?",
-    options: ["Сны", "Темноту", "Звезды", "Будущее"],
-    correctAnswer: 0,
+    question: "Стоит на месте, но показывает время. Что это?",
+    options: ["Солнце", "Часы", "Календарь", "Тень"],
+    correctAnswer: 1,
     points: 100
   },
   {
     id: 2,
     question: "Что становится влажным, когда сушит?",
-    options: ["Вода", "Полотенце", "Ветер", "Солнце"],
+    options: ["Вода", "Полотенце", "Ветер", "Огонь"],
     correctAnswer: 1,
     points: 150
   },
   {
     id: 3,
-    question: "Что идет, не двигаясь с места?",
-    options: ["Облака", "Время", "Река", "Дорога"],
+    question: "Имеет рот, но не говорит. Имеет ложе, но не спит. Что это?",
+    options: ["Пещера", "Река", "Дорога", "Гора"],
     correctAnswer: 1,
     points: 200
   },
@@ -58,33 +68,92 @@ const riddles: Riddle[] = [
   },
   {
     id: 5,
-    question: "Что может путешествовать по миру, оставаясь в углу?",
-    options: ["Паук", "Пыль", "Марка", "Тень"],
-    correctAnswer: 2,
+    question: "Всегда голодный, всё пожирает. Коснётся воды - умирает?",
+    options: ["Вулкан", "Огонь", "Дракон", "Молния"],
+    correctAnswer: 1,
     points: 300
   }
 ];
 
+const createRooms = (): Room[] => [
+  {
+    id: 'entrance',
+    name: 'Главный Зал',
+    description: 'Огромный зал с высокими потолками. Факелы освещают древние гобелены на стенах.',
+    riddle: riddles[0],
+    connections: ['library', 'armory'],
+    emoji: '🏰',
+    solved: false
+  },
+  {
+    id: 'library',
+    name: 'Библиотека',
+    description: 'Пыльные книги заполняют полки от пола до потолка. Пахнет старой бумагой.',
+    riddle: riddles[1],
+    connections: ['entrance', 'tower'],
+    emoji: '📚',
+    solved: false
+  },
+  {
+    id: 'armory',
+    name: 'Оружейная',
+    description: 'Стены увешаны мечами и щитами. Доспехи стоят словно стражи.',
+    riddle: riddles[2],
+    connections: ['entrance', 'dungeon'],
+    emoji: '⚔️',
+    solved: false
+  },
+  {
+    id: 'tower',
+    name: 'Башня Мага',
+    description: 'Магические руны светятся на полу. В воздухе витает энергия древних заклинаний.',
+    riddle: riddles[3],
+    connections: ['library', 'treasure'],
+    emoji: '🔮',
+    solved: false
+  },
+  {
+    id: 'dungeon',
+    name: 'Подземелье',
+    description: 'Холодно и сыро. Капли воды падают со сводов. Где-то скрипят цепи.',
+    riddle: riddles[4],
+    connections: ['armory', 'treasure'],
+    emoji: '⛓️',
+    solved: false
+  },
+  {
+    id: 'treasure',
+    name: 'Сокровищница',
+    description: 'Блеск золота и драгоценностей ослепляет глаза. Ты нашёл главное сокровище замка!',
+    riddle: { id: 6, question: '', options: [], correctAnswer: 0, points: 500 },
+    connections: ['tower', 'dungeon'],
+    emoji: '💎',
+    solved: false
+  }
+];
+
 const initialAchievements: Achievement[] = [
-  { id: 'first', title: 'Первый шаг', description: 'Ответь на первую загадку', unlocked: false, icon: 'Star' },
-  { id: 'streak3', title: 'На разогреве', description: 'Правильно ответь на 3 загадки подряд', unlocked: false, icon: 'Flame' },
-  { id: 'complete', title: 'Мастер загадок', description: 'Пройди все загадки', unlocked: false, icon: 'Trophy' },
-  { id: 'perfect', title: 'Безупречность', description: 'Ответь на все загадки с первого раза', unlocked: false, icon: 'Award' }
+  { id: 'first', title: 'Первые шаги', description: 'Войди в замок', unlocked: false, icon: 'Castle' },
+  { id: 'explorer', title: 'Исследователь', description: 'Посети 3 комнаты', unlocked: false, icon: 'Map' },
+  { id: 'complete', title: 'Властелин замка', description: 'Найди сокровищницу', unlocked: false, icon: 'Trophy' },
+  { id: 'perfect', title: 'Мудрец', description: 'Реши все загадки без ошибок', unlocked: false, icon: 'Award' }
 ];
 
 const leaderboardData: LeaderboardEntry[] = [
-  { name: "Мастер", score: 1500, level: 5 },
-  { name: "Эксперт", score: 1200, level: 5 },
-  { name: "Профи", score: 1000, level: 4 },
-  { name: "Новичок", score: 750, level: 3 },
-  { name: "Игрок", score: 500, level: 2 }
+  { name: "Великий Маг", score: 1500, rooms: 6 },
+  { name: "Рыцарь", score: 1200, rooms: 6 },
+  { name: "Искатель", score: 1000, rooms: 5 },
+  { name: "Странник", score: 750, rooms: 4 },
+  { name: "Новичок", score: 500, rooms: 3 }
 ];
 
 type Screen = 'menu' | 'game' | 'achievements' | 'leaderboard' | 'rules';
 
 export default function Index() {
   const [screen, setScreen] = useState<Screen>('menu');
-  const [currentRiddle, setCurrentRiddle] = useState(0);
+  const [rooms, setRooms] = useState<Room[]>(createRooms());
+  const [currentRoomId, setCurrentRoomId] = useState('entrance');
+  const [visitedRooms, setVisitedRooms] = useState<string[]>(['entrance']);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [streak, setStreak] = useState(0);
@@ -95,14 +164,22 @@ export default function Index() {
   const [gameOver, setGameOver] = useState(false);
   const [perfectRun, setPerfectRun] = useState(true);
 
+  const currentRoom = rooms.find(r => r.id === currentRoomId)!;
+
   useEffect(() => {
-    if (streak === 1) {
+    if (visitedRooms.length === 1) {
       unlockAchievement('first');
     }
-    if (streak === 3) {
-      unlockAchievement('streak3');
+    if (visitedRooms.length === 3) {
+      unlockAchievement('explorer');
     }
-  }, [streak]);
+    if (currentRoomId === 'treasure') {
+      unlockAchievement('complete');
+      if (perfectRun) {
+        unlockAchievement('perfect');
+      }
+    }
+  }, [visitedRooms, currentRoomId, perfectRun]);
 
   const unlockAchievement = (id: string) => {
     setAchievements(prev => prev.map(a => 
@@ -111,16 +188,19 @@ export default function Index() {
   };
 
   const handleAnswer = (answerIndex: number) => {
-    if (showResult) return;
+    if (showResult || currentRoom.solved) return;
     
     setSelectedAnswer(answerIndex);
-    const correct = answerIndex === riddles[currentRiddle].correctAnswer;
+    const correct = answerIndex === currentRoom.riddle.correctAnswer;
     setIsCorrect(correct);
     setShowResult(true);
 
     if (correct) {
-      setScore(prev => prev + riddles[currentRiddle].points);
+      setScore(prev => prev + currentRoom.riddle.points);
       setStreak(prev => prev + 1);
+      setRooms(prev => prev.map(r => 
+        r.id === currentRoomId ? { ...r, solved: true } : r
+      ));
     } else {
       setLives(prev => prev - 1);
       setStreak(0);
@@ -132,22 +212,19 @@ export default function Index() {
     }
   };
 
-  const nextRiddle = () => {
-    if (currentRiddle + 1 < riddles.length) {
-      setCurrentRiddle(prev => prev + 1);
-      setSelectedAnswer(null);
-      setShowResult(false);
-    } else {
-      unlockAchievement('complete');
-      if (perfectRun) {
-        unlockAchievement('perfect');
-      }
-      setGameOver(true);
+  const moveToRoom = (roomId: string) => {
+    setCurrentRoomId(roomId);
+    if (!visitedRooms.includes(roomId)) {
+      setVisitedRooms(prev => [...prev, roomId]);
     }
+    setSelectedAnswer(null);
+    setShowResult(false);
   };
 
   const resetGame = () => {
-    setCurrentRiddle(0);
+    setRooms(createRooms());
+    setCurrentRoomId('entrance');
+    setVisitedRooms(['entrance']);
     setScore(0);
     setLives(3);
     setStreak(0);
@@ -162,7 +239,7 @@ export default function Index() {
       <Card className="w-full max-w-2xl p-8 bg-card border-4 border-primary">
         <div className="text-center space-y-8">
           <h1 className="font-pixel text-2xl md:text-4xl text-primary animate-blink">
-            КВЕСТ ЗАГАДОК
+            🏰 ЗАМОК ЗАГАДОК
           </h1>
           <div className="space-y-4">
             <Button 
@@ -206,14 +283,14 @@ export default function Index() {
           <Card className="w-full max-w-2xl p-8 bg-card border-4 border-primary">
             <div className="text-center space-y-6">
               <h2 className="font-pixel text-2xl md:text-3xl text-primary">
-                {lives > 0 ? 'ПОБЕДА!' : 'ИГРА ОКОНЧЕНА'}
+                {lives > 0 ? '🏆 ПОБЕДА!' : '💀 ПОРАЖЕНИЕ'}
               </h2>
               <div className="space-y-4">
                 <div className="font-pixel text-lg text-foreground">
                   СЧЕТ: {score}
                 </div>
                 <div className="font-pixel text-sm text-muted-foreground">
-                  ЗАГАДОК РЕШЕНО: {currentRiddle + 1}/{riddles.length}
+                  КОМНАТ ПОСЕЩЕНО: {visitedRooms.length}/{rooms.length}
                 </div>
               </div>
               <div className="flex gap-4">
@@ -240,12 +317,10 @@ export default function Index() {
         </div>
       );
     }
-
-    const riddle = riddles[currentRiddle];
     
     return (
       <div className="min-h-screen bg-background p-4">
-        <div className="max-w-3xl mx-auto space-y-6 py-8">
+        <div className="max-w-6xl mx-auto space-y-6 py-8">
           <div className="flex justify-between items-center">
             <Button 
               onClick={() => setScreen('menu')}
@@ -269,77 +344,159 @@ export default function Index() {
             </div>
           </div>
 
-          <Card className="p-6 bg-card border-4 border-primary">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <Badge className="font-pixel text-xs bg-secondary">
-                  ЗАГАДКА {currentRiddle + 1}/{riddles.length}
-                </Badge>
-                <Badge className="font-pixel text-xs bg-accent">
-                  +{riddle.points} ОЧКОВ
-                </Badge>
-              </div>
-              
-              <Progress value={((currentRiddle + 1) / riddles.length) * 100} className="h-2" />
-              
-              <h3 className="font-pixel text-sm md:text-base text-foreground leading-relaxed min-h-24 flex items-center">
-                {riddle.question}
-              </h3>
-
-              <div className="grid gap-3">
-                {riddle.options.map((option, index) => {
-                  let buttonClass = "w-full font-pixel text-xs md:text-sm h-auto py-4 px-4 border-2 ";
-                  
-                  if (showResult) {
-                    if (index === riddle.correctAnswer) {
-                      buttonClass += "bg-secondary/30 border-secondary text-secondary-foreground";
-                    } else if (index === selectedAnswer) {
-                      buttonClass += "bg-destructive/30 border-destructive text-destructive-foreground";
-                    } else {
-                      buttonClass += "bg-muted/30 border-muted text-muted-foreground";
-                    }
-                  } else {
-                    buttonClass += "bg-primary hover:bg-primary/80 border-primary-foreground text-primary-foreground";
-                  }
-
-                  return (
-                    <Button
-                      key={index}
-                      onClick={() => handleAnswer(index)}
-                      disabled={showResult}
-                      className={buttonClass}
-                    >
-                      {option}
-                    </Button>
-                  );
-                })}
-              </div>
-
-              {showResult && (
-                <div className="text-center space-y-4 animate-pixelate">
-                  <p className={`font-pixel text-sm ${isCorrect ? 'text-secondary' : 'text-destructive'}`}>
-                    {isCorrect ? '✓ ПРАВИЛЬНО!' : '✗ НЕВЕРНО!'}
-                  </p>
-                  <Button 
-                    onClick={nextRiddle}
-                    className="font-pixel text-sm bg-primary hover:bg-primary/80 h-12"
-                  >
-                    {currentRiddle + 1 < riddles.length ? 'СЛЕДУЮЩАЯ ЗАГАДКА' : 'ЗАВЕРШИТЬ'}
-                    <Icon name="ArrowRight" className="ml-2" size={16} />
-                  </Button>
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="md:col-span-2 p-6 bg-card border-4 border-primary">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="text-5xl">{currentRoom.emoji}</div>
+                  <div className="flex-1">
+                    <h2 className="font-pixel text-lg text-primary">{currentRoom.name}</h2>
+                    <p className="font-pixel text-xs text-muted-foreground mt-2 leading-relaxed">
+                      {currentRoom.description}
+                    </p>
+                  </div>
                 </div>
+
+                {currentRoom.id !== 'treasure' && !currentRoom.solved && (
+                  <>
+                    <div className="border-t-2 border-muted pt-4">
+                      <Badge className="font-pixel text-xs bg-accent mb-4">
+                        +{currentRoom.riddle.points} ОЧКОВ
+                      </Badge>
+                      <h3 className="font-pixel text-sm text-foreground leading-relaxed mb-4">
+                        {currentRoom.riddle.question}
+                      </h3>
+                      <div className="grid gap-3">
+                        {currentRoom.riddle.options.map((option, index) => {
+                          let buttonClass = "w-full font-pixel text-xs h-auto py-3 px-4 border-2 ";
+                          
+                          if (showResult) {
+                            if (index === currentRoom.riddle.correctAnswer) {
+                              buttonClass += "bg-secondary/30 border-secondary text-secondary-foreground";
+                            } else if (index === selectedAnswer) {
+                              buttonClass += "bg-destructive/30 border-destructive text-destructive-foreground";
+                            } else {
+                              buttonClass += "bg-muted/30 border-muted text-muted-foreground";
+                            }
+                          } else {
+                            buttonClass += "bg-primary hover:bg-primary/80 border-primary-foreground text-primary-foreground";
+                          }
+
+                          return (
+                            <Button
+                              key={index}
+                              onClick={() => handleAnswer(index)}
+                              disabled={showResult}
+                              className={buttonClass}
+                            >
+                              {option}
+                            </Button>
+                          );
+                        })}
+                      </div>
+
+                      {showResult && (
+                        <div className="text-center mt-4 animate-pixelate">
+                          <p className={`font-pixel text-sm ${isCorrect ? 'text-secondary' : 'text-destructive'}`}>
+                            {isCorrect ? '✓ ПРАВИЛЬНО!' : '✗ НЕВЕРНО!'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {currentRoom.solved && (
+                  <div className="border-t-2 border-secondary pt-4">
+                    <div className="text-center">
+                      <Icon name="Check" className="mx-auto text-secondary mb-2" size={32} />
+                      <p className="font-pixel text-xs text-secondary">ЗАГАДКА РЕШЕНА</p>
+                    </div>
+                  </div>
+                )}
+
+                {currentRoom.id === 'treasure' && (
+                  <div className="border-t-2 border-accent pt-4">
+                    <div className="text-center space-y-4">
+                      <div className="text-6xl animate-blink">💎</div>
+                      <p className="font-pixel text-sm text-accent">ТЫ НАШЁЛ СОКРОВИЩЕ!</p>
+                      <p className="font-pixel text-xs text-muted-foreground">+500 ОЧКОВ</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="border-t-2 border-muted pt-4">
+                  <p className="font-pixel text-xs text-muted-foreground mb-3">КУДА ПОЙТИ:</p>
+                  <div className="grid gap-2">
+                    {currentRoom.connections.map(connId => {
+                      const connRoom = rooms.find(r => r.id === connId)!;
+                      return (
+                        <Button
+                          key={connId}
+                          onClick={() => moveToRoom(connId)}
+                          className="w-full font-pixel text-xs h-auto py-3 px-4 bg-muted hover:bg-muted/80 border-2 border-muted-foreground"
+                        >
+                          <span className="mr-2">{connRoom.emoji}</span>
+                          {connRoom.name}
+                          {connRoom.solved && <span className="ml-2 text-secondary">✓</span>}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <div className="space-y-4">
+              <Card className="p-4 bg-card border-4 border-secondary">
+                <h3 className="font-pixel text-xs text-secondary mb-3">КАРТА ЗАМКА</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {rooms.map(room => (
+                    <button
+                      key={room.id}
+                      onClick={() => moveToRoom(room.id)}
+                      disabled={!visitedRooms.includes(room.id) && !currentRoom.connections.includes(room.id)}
+                      className={`p-3 border-2 font-pixel text-xs transition-all ${
+                        room.id === currentRoomId 
+                          ? 'border-primary bg-primary/20 scale-105' 
+                          : visitedRooms.includes(room.id)
+                          ? 'border-muted bg-muted/20 hover:bg-muted/40'
+                          : 'border-muted/30 bg-muted/10 opacity-50 cursor-not-allowed'
+                      }`}
+                    >
+                      <div className="text-2xl mb-1">{room.emoji}</div>
+                      <div className="text-[8px] leading-tight">{room.name}</div>
+                      {room.solved && <div className="text-secondary text-xs mt-1">✓</div>}
+                    </button>
+                  ))}
+                </div>
+              </Card>
+
+              <Card className="p-4 bg-card border-4 border-accent">
+                <h3 className="font-pixel text-xs text-accent mb-3">СТАТИСТИКА</h3>
+                <div className="space-y-2 font-pixel text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Посещено:</span>
+                    <span className="text-foreground">{visitedRooms.length}/{rooms.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Решено:</span>
+                    <span className="text-foreground">{rooms.filter(r => r.solved).length}/{rooms.length - 1}</span>
+                  </div>
+                  <Progress value={(rooms.filter(r => r.solved).length / (rooms.length - 1)) * 100} className="h-2 mt-2" />
+                </div>
+              </Card>
+
+              {streak > 0 && (
+                <Card className="p-4 bg-accent/20 border-4 border-accent">
+                  <div className="text-center">
+                    <Icon name="Flame" className="mx-auto text-accent mb-2 animate-blink" size={24} />
+                    <p className="font-pixel text-xs text-accent">СЕРИЯ: {streak}</p>
+                  </div>
+                </Card>
               )}
             </div>
-          </Card>
-
-          {streak > 0 && (
-            <div className="text-center">
-              <Badge className="font-pixel text-xs bg-accent animate-blink">
-                <Icon name="Flame" className="mr-1" size={12} />
-                СЕРИЯ: {streak}
-              </Badge>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     );
@@ -426,7 +583,7 @@ export default function Index() {
                 <div className="flex-1">
                   <div className="font-pixel text-sm text-foreground">{entry.name}</div>
                   <div className="font-pixel text-xs text-muted-foreground">
-                    УРОВЕНЬ {entry.level}
+                    КОМНАТ: {entry.rooms}
                   </div>
                 </div>
                 <div className="font-pixel text-lg text-primary">
@@ -469,7 +626,27 @@ export default function Index() {
               <div>
                 <h3 className="font-pixel text-sm text-foreground mb-2">ЦЕЛЬ</h3>
                 <p className="font-pixel text-xs text-muted-foreground leading-relaxed">
-                  Отгадай все загадки и набери максимум очков
+                  Исследуй замок, реши загадки и найди сокровищницу
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4 items-start">
+              <Icon name="Map" className="text-secondary mt-1" size={24} />
+              <div>
+                <h3 className="font-pixel text-sm text-foreground mb-2">ПЕРЕМЕЩЕНИЕ</h3>
+                <p className="font-pixel text-xs text-muted-foreground leading-relaxed">
+                  Ходи между комнатами замка. Карта покажет твой путь
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-4 items-start">
+              <Icon name="Brain" className="text-primary mt-1" size={24} />
+              <div>
+                <h3 className="font-pixel text-sm text-foreground mb-2">ЗАГАДКИ</h3>
+                <p className="font-pixel text-xs text-muted-foreground leading-relaxed">
+                  В каждой комнате ждёт загадка. Реши её правильно!
                 </p>
               </div>
             </div>
@@ -483,34 +660,14 @@ export default function Index() {
                 </p>
               </div>
             </div>
-
-            <div className="flex gap-4 items-start">
-              <Icon name="Flame" className="text-accent mt-1" size={24} />
-              <div>
-                <h3 className="font-pixel text-sm text-foreground mb-2">СЕРИЯ</h3>
-                <p className="font-pixel text-xs text-muted-foreground leading-relaxed">
-                  Отвечай правильно подряд для серии побед
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4 items-start">
-              <Icon name="Trophy" className="text-secondary mt-1" size={24} />
-              <div>
-                <h3 className="font-pixel text-sm text-foreground mb-2">ДОСТИЖЕНИЯ</h3>
-                <p className="font-pixel text-xs text-muted-foreground leading-relaxed">
-                  Открывай новые достижения за особые успехи
-                </p>
-              </div>
-            </div>
           </div>
         </Card>
 
         <Card className="p-6 bg-accent/20 border-4 border-accent">
           <div className="text-center space-y-2">
-            <Icon name="Zap" className="text-accent mx-auto" size={32} />
+            <div className="text-4xl">🏰</div>
             <p className="font-pixel text-xs text-foreground">
-              СОВЕТ: ЗА КАЖДУЮ ЗАГАДКУ ДАЮТ РАЗНОЕ КОЛИЧЕСТВО ОЧКОВ
+              СОВЕТ: ИСПОЛЬЗУЙ КАРТУ ДЛЯ БЫСТРОГО ПЕРЕМЕЩЕНИЯ
             </p>
           </div>
         </Card>
